@@ -81,7 +81,6 @@ if geojson:
 
             st.subheader("Result")
             df = pd.DataFrame(gdf)
-            print(df.columns)
             df.drop('geometry',axis=1, inplace=True)
             st.write(df)
             if len(gdf)>0:
