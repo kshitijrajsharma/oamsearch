@@ -51,9 +51,9 @@ def create_geodataframe(data):
     gdf = gpd.GeoDataFrame.from_features(features)
     return gdf
 
-st.set_page_config(page_title="OpenAerialMap Metadata Searcher", layout="wide")
+st.set_page_config(page_title="Search OpenAerialMap Metadata", layout="wide")
 
-st.title("OpenAerialMap Metadata Searcher")
+st.title("Search OpenAerialMap Metadata")
 
 uploaded_file = st.file_uploader("Upload a GeoJSON file", type=["geojson"])
 
