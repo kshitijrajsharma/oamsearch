@@ -41,6 +41,9 @@ def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
 def create_geodataframe(data):
     features = []
     for result in data["results"]:
+        for key,value in result.items(): 
+            if key not in ['properties','bbox','footprint','user','projection','meta_uri','__v','geojson']:
+                result['properties'][key]=value
         properties = result["properties"]
         geometry = result["geojson"]
         features.append({"geometry": geometry, "properties": properties})

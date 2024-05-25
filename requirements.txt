@@ -1,2 +1,2 @@
-geopandas
-streamlit
+geopandas==0.14.4
+streamlit==1.35.0
