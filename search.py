@@ -1,8 +1,10 @@
 import json
+
 import geopandas as gpd
 import pandas as pd
 import requests
 import streamlit as st
+
 
 def calculate_bbox(geojson):
     features = geojson["features"]
@@ -22,6 +24,7 @@ def calculate_bbox(geojson):
 
     return [min_x, min_y, max_x, max_y]
 
+
 def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
     base_url = "https://api.openaerialmap.org/meta"
     params = {
@@ -38,18 +41,57 @@ def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
     data = response.json()
     return data
 
+
+def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
+    base_url = "https://api.openaerialmap.org/meta"
+    params = {"bbox": ",".join(map(str, bbox)), "limit": 100}
+
+    if from_date:
+        params["acquisition_from"] = from_date.strftime("%Y-%m-%d")
+
+    if to_date:
+        params["acquisition_to"] = to_date.strftime("%Y-%m-%d")
+
+    all_results = []
+    page = 1
+    while True:
+        params["page"] = page
+        response = requests.get(base_url, params=params)
+        data = response.json()
+
+        all_results.extend(data["results"])
+
+        total_results = data["meta"]["found"]
+        limit = data["meta"]["limit"]
+        if len(all_results) >= total_results:
+            break
+        page += 1
+
+    return all_results
+
+
 def create_geodataframe(data):
     features = []
-    for result in data["results"]:
-        for key,value in result.items(): 
-            if key not in ['properties','bbox','footprint','user','projection','meta_uri','__v','geojson']:
-                result['properties'][key]=value
+    for result in data:
+        for key, value in result.items():
+            if key not in [
+                "properties",
+                "bbox",
+                "footprint",
+                "user",
+                "projection",
+                "meta_uri",
+                "__v",
+                "geojson",
+            ]:
+                result["properties"][key] = value
         properties = result["properties"]
         geometry = result["geojson"]
         features.append({"geometry": geometry, "properties": properties})
 
     gdf = gpd.GeoDataFrame.from_features(features)
     return gdf
+
 
 st.set_page_config(page_title="Search OpenAerialMap Metadata", layout="wide")
 
@@ -83,10 +125,11 @@ if geojson:
             gdf = create_geodataframe(data)
 
             st.subheader("Result")
+            st.text(f"Total Features : {len(gdf)}")
             df = pd.DataFrame(gdf)
-            df.drop('geometry',axis=1, inplace=True)
-            st.write(df)
-            if len(gdf)>0:
+            df.drop("geometry", axis=1, inplace=True)
+            st.write(df.head(100))
+            if len(gdf) > 0:
 
                 geojson_data = gdf.to_json()
                 st.download_button(
