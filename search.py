@@ -62,6 +62,7 @@ def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
         all_results.extend(data["results"])
 
         total_results = data["meta"]["found"]
+        print(total_results)
         limit = data["meta"]["limit"]
         if len(all_results) >= total_results:
             break
@@ -89,8 +90,12 @@ def create_geodataframe(data):
         geometry = result["geojson"]
         features.append({"geometry": geometry, "properties": properties})
 
-    gdf = gpd.GeoDataFrame.from_features(features)
-    return gdf
+    gdf = gpd.GeoDataFrame.from_features(features, crs=4326)
+    gdf_proj = gdf.to_crs(epsg=3857)
+    gdf_proj["area_sqm"] = gdf_proj.geometry.area
+    gdf_proj_back = gdf_proj.to_crs(epsg=4326)
+
+    return gdf_proj_back
 
 
 st.set_page_config(page_title="Search OpenAerialMap Metadata", layout="wide")
