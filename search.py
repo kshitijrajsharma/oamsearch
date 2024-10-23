@@ -25,21 +25,7 @@ def calculate_bbox(geojson):
     return [min_x, min_y, max_x, max_y]
 
 
-def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
-    base_url = "https://api.openaerialmap.org/meta"
-    params = {
-        "bbox": ",".join(map(str, bbox)),
-    }
 
-    if from_date:
-        params["acquisition_from"] = from_date.strftime("%Y-%m-%d")
-
-    if to_date:
-        params["acquisition_to"] = to_date.strftime("%Y-%m-%d")
-
-    response = requests.get(base_url, params=params)
-    data = response.json()
-    return data
 
 
 def fetch_openaerialmap_data(bbox, from_date=None, to_date=None):
