@@ -232,7 +232,23 @@ if st.button("Fetch Data"):
             df = pd.DataFrame(gdf)
             df.drop("geometry", axis=1, inplace=True)
             st.write(df.head(100))
+            if len(gdf) > 0:
 
+                geojson_data = gdf.to_json()
+                st.download_button(
+                    label="Download GeoJSON",
+                    data=geojson_data,
+                    file_name="openaerialmap_data.geojson",
+                    mime="application/json",
+                )
+
+                csv_data = gdf.to_csv(index=False)
+                st.download_button(
+                    label="Download CSV",
+                    data=csv_data,
+                    file_name="openaerialmap_data.csv",
+                    mime="text/csv",
+                )
             st.subheader("Charts")
             fig = create_chart(df, x_col, y_col, chart_type, time_interval)
             if fig:
